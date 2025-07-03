@@ -102,7 +102,7 @@ function Form() {
 
     try {
       setLoading(true);
-      const res = await axios.post("http://localhost:8000/analyze/", formData);
+      const res = await axios.post("https://ai-resume-analyzer-htsu.onrender.com/analyze/", formData);
       setResult(res.data.analysis || res.data.error);
     } catch (err) {
       console.error("Error:", err);
