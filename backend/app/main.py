@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 app = FastAPI()
 
 origins = [
-    "http://localhost:5173",
+    "https://ai-resume-analyzer-delta.vercel.app/",
     ]
 
 # Allow frontend access (adjust as needed)
