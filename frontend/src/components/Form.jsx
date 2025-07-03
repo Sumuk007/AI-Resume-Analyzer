@@ -1,84 +1,3 @@
-// import React, { useState } from "react";
-// import axios from "axios";
-
-// function Form() {
-//   const [resume, setResume] = useState(null);
-//   const [jobDesc, setJobDesc] = useState("");
-//   const [result, setResult] = useState("");
-//   const [loading, setLoading] = useState(false);
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-
-//     if (!resume || !jobDesc) {
-//       alert("Please upload a resume and enter a job description.");
-//       return;
-//     }
-
-//     const formData = new FormData();
-//     formData.append("resume", resume);
-//     formData.append("job_description", jobDesc);
-
-//     try {
-//       setLoading(true);
-//       const res = await axios.post("http://localhost:8000/analyze/", formData);
-//       setResult(res.data.analysis || res.data.error);
-//     } catch (err) {
-//       setResult("Something went wrong. Please try again.");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-//       <div className="bg-white shadow-lg rounded-xl p-6 w-full max-w-2xl">
-//         <h1 className="text-2xl font-bold mb-4 text-center">AI Resume Analyzer</h1>
-
-//         <form onSubmit={handleSubmit} className="space-y-4">
-//           <div>
-//             <label className="block font-medium mb-1">Upload Resume (PDF)</label>
-//             <input
-//               type="file"
-//               accept="application/pdf"
-//               onChange={(e) => setResume(e.target.files[0])}
-//               className="border border-gray-300 p-2 w-full rounded"
-//             />
-//           </div>
-
-//           <div>
-//             <label className="block font-medium mb-1">Paste Job Description</label>
-//             <textarea
-//               value={jobDesc}
-//               onChange={(e) => setJobDesc(e.target.value)}
-//               rows={5}
-//               className="border border-gray-300 p-2 w-full rounded"
-//               placeholder="Enter the job description here..."
-//             />
-//           </div>
-
-//           <button
-//             type="submit"
-//             disabled={loading}
-//             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-//           >
-//             {loading ? "Analyzing..." : "Analyze Resume"}
-//           </button>
-//         </form>
-
-//         {result && (
-//           <div className="mt-6 p-4 border rounded bg-gray-50 whitespace-pre-wrap">
-//             <strong>AI Feedback:</strong>
-//             <p className="mt-2">{result}</p>
-//           </div>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default Form;
-
 import React, { useState } from "react";
 import axios from "axios";
 
@@ -102,13 +21,33 @@ function Form() {
 
     try {
       setLoading(true);
-      const res = await axios.post("https://ai-resume-analyzer-htsu.onrender.com/analyze/", formData);
-      setResult(res.data.analysis || res.data.error);
+
+      const res = await axios.post(
+        "https://ai-resume-analyzer-htsu.onrender.com/analyze/",
+        formData
+      );
+
+      if (res.data?.result) {
+        setResult(res.data.result);
+      } else if (res.data?.analysis) {
+        setResult(res.data.analysis);
+      } else if (res.data?.error) {
+        setResult("❌ Server responded with an error: " + res.data.error);
+      } else {
+        setResult("❌ Unexpected response from server.");
+      }
     } catch (err) {
       console.error("Error:", err);
-      setResult(
-        "Something went wrong: " + (err.response?.data?.error || err.message)
-      );
+
+      if (err.response?.status === 429) {
+        setResult("⚠️ Rate limit exceeded. Please try again in a few minutes.");
+      } else if (err.response?.data?.error) {
+        setResult("❌ Error from server: " + err.response.data.error);
+      } else {
+        setResult(
+          "❌ Network error. Please check your connection or try again."
+        );
+      }
     } finally {
       setLoading(false);
     }
