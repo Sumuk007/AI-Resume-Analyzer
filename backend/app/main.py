@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 app = FastAPI()
 
 origins = [
-    "https://ai-resume-analyzer-delta.vercel.app",
+    "https://resumeanalyzer-ai.vercel.app",
     "http://localhost:5173"
     ]
 
