@@ -1,6 +1,19 @@
 import React, { useRef, useState } from "react";
 import axios from "axios";
-import { Upload, X, FileText, Zap, CheckCircle, AlertCircle, Loader2, Copy, Check, RefreshCw, Wifi, WifiOff } from "lucide-react";
+import {
+  Upload,
+  X,
+  FileText,
+  Zap,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  Copy,
+  Check,
+  RefreshCw,
+  Wifi,
+  WifiOff,
+} from "lucide-react";
 
 function Form({ serverStatus, onRefreshStatus }) {
   const [resume, setResume] = useState(null);
@@ -11,9 +24,9 @@ function Form({ serverStatus, onRefreshStatus }) {
   const [copied, setCopied] = useState(false);
 
   // Check if server is available for requests
-  const isServerAvailable = serverStatus === 'live';
-  const isServerWaking = serverStatus === 'waking';
-  const isServerOffline = serverStatus === 'offline';
+  const isServerAvailable = serverStatus === "live";
+  const isServerWaking = serverStatus === "waking";
+  const isServerOffline = serverStatus === "offline";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,7 +42,9 @@ function Form({ serverStatus, onRefreshStatus }) {
         alert("Server is waking up. Please wait a moment and try again.");
         return;
       } else if (isServerOffline) {
-        alert("Server is offline. Please check your connection or try again later.");
+        alert(
+          "Server is offline. Please check your connection or try again later."
+        );
         return;
       }
     }
@@ -41,7 +56,10 @@ function Form({ serverStatus, onRefreshStatus }) {
     try {
       setLoading(true);
 
-      const res = await axios.post("https://ai-resume-analyzer-htsu.onrender.com/analyze/", formData);
+      const res = await axios.post(
+        "https://ai-resume-analyzer-htsu.onrender.com/analyze/",
+        formData
+      );
 
       if (res.data?.result) {
         setResult(res.data.result);
@@ -60,7 +78,9 @@ function Form({ serverStatus, onRefreshStatus }) {
       } else if (err.response?.data?.error) {
         setResult("❌ Error from server: " + err.response.data.error);
       } else {
-        setResult("❌ Network error. Please check your connection or try again.");
+        setResult(
+          "❌ Network error. Please check your connection or try again."
+        );
         // Trigger server status refresh when network error occurs
         if (onRefreshStatus) {
           onRefreshStatus();
@@ -76,8 +96,8 @@ function Form({ serverStatus, onRefreshStatus }) {
     setResume(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = null;
-  }
-  }
+    }
+  };
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -110,154 +130,170 @@ function Form({ serverStatus, onRefreshStatus }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy: ', err);
+      console.error("Failed to copy: ", err);
     }
   };
 
   const formatResult = (text) => {
     // Clean up the text first
-    const cleanText = text.replace(/\*\*/g, '').replace(/\*/g, '');
-    
+    const cleanText = text.replace(/\*\*/g, "").replace(/\*/g, "");
+
     // Split into sections based on common patterns
-    const sections = cleanText.split(/\n\s*\n/).filter(section => section.trim());
-    
-    return sections.map((section, index) => {
-      const lines = section.split('\n').filter(line => line.trim());
-      
-      if (lines.length === 0) return null;
-      
-      // Check if this is a main section (usually the first line is a header)
-      const firstLine = lines[0].trim();
-      const isMainSection = firstLine.length > 0 && 
-        (firstLine.includes('Analysis') || 
-         firstLine.includes('Summary') || 
-         firstLine.includes('Recommendations') || 
-         firstLine.includes('Skills') || 
-         firstLine.includes('Experience') || 
-         firstLine.includes('Education') || 
-         firstLine.includes('Improvements') ||
-         firstLine.includes('Match') ||
-         firstLine.includes('Score') ||
-         firstLine.includes('Feedback') ||
-         firstLine.includes('Strengths') ||
-         firstLine.includes('Weaknesses'));
-      
-      if (isMainSection) {
-        return (
-          <div key={index} className="mb-8 border-l-4 border-blue-500 pl-6">
-            <h2 className="text-2xl font-bold text-blue-400 mb-4 flex items-center">
-              <div className="w-3 h-3 bg-blue-400 rounded-full mr-3"></div>
-              {firstLine}
-            </h2>
-            <div className="space-y-3">
-              {lines.slice(1).map((line, lineIndex) => {
-                const trimmedLine = line.trim();
-                if (!trimmedLine) return null;
-                
-                // Check if it's a sub-heading (usually contains colons or is short)
-                const isSubHeading = trimmedLine.includes(':') && trimmedLine.length < 100;
-                
-                if (isSubHeading) {
-                  const [heading, ...contentParts] = trimmedLine.split(':');
-                  const content = contentParts.join(':').trim();
-                  
-                  return (
-                    <div key={lineIndex} className="mb-4 ml-4">
-                      <h3 className="text-lg font-semibold text-slate-200 mb-2 flex items-center">
-                        <div className="w-2 h-2 bg-purple-400 rounded-full mr-2"></div>
-                        {heading.trim()}
-                      </h3>
-                      {content && (
-                        <p className="text-slate-300 ml-6 leading-relaxed bg-slate-800/30 p-3 rounded-lg">
-                          {content}
-                        </p>
-                      )}
-                    </div>
-                  );
-                }
-                
-                // Check if it's a numbered or bulleted item
-                const numberedMatch = trimmedLine.match(/^(\d+)\.?\s*(.+)/);
-                const bulletMatch = trimmedLine.match(/^[-•·]\s*(.+)/);
-                
-                if (numberedMatch) {
-                  return (
-                    <div key={lineIndex} className="mb-3 ml-8">
-                      <div className="flex items-start space-x-3">
-                        <div className="w-6 h-6 bg-gradient-to-br from-green-500 to-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold mt-0.5 flex-shrink-0">
-                          {numberedMatch[1]}
+    const sections = cleanText
+      .split(/\n\s*\n/)
+      .filter((section) => section.trim());
+
+    return sections
+      .map((section, index) => {
+        const lines = section.split("\n").filter((line) => line.trim());
+
+        if (lines.length === 0) return null;
+
+        // Check if this is a main section (usually the first line is a header)
+        const firstLine = lines[0].trim();
+        const isMainSection =
+          firstLine.length > 0 &&
+          (firstLine.includes("Analysis") ||
+            firstLine.includes("Summary") ||
+            firstLine.includes("Recommendations") ||
+            firstLine.includes("Skills") ||
+            firstLine.includes("Experience") ||
+            firstLine.includes("Education") ||
+            firstLine.includes("Improvements") ||
+            firstLine.includes("Match") ||
+            firstLine.includes("Score") ||
+            firstLine.includes("Feedback") ||
+            firstLine.includes("Strengths") ||
+            firstLine.includes("Weaknesses"));
+
+        if (isMainSection) {
+          return (
+            <div key={index} className="mb-8 border-l-4 border-blue-500 pl-6">
+              <h2 className="text-2xl font-bold text-blue-400 mb-4 flex items-center">
+                <div className="w-3 h-3 bg-blue-400 rounded-full mr-3"></div>
+                {firstLine}
+              </h2>
+              <div className="space-y-3">
+                {lines.slice(1).map((line, lineIndex) => {
+                  const trimmedLine = line.trim();
+                  if (!trimmedLine) return null;
+
+                  // Check if it's a sub-heading (usually contains colons or is short)
+                  const isSubHeading =
+                    trimmedLine.includes(":") && trimmedLine.length < 100;
+
+                  if (isSubHeading) {
+                    const [heading, ...contentParts] = trimmedLine.split(":");
+                    const content = contentParts.join(":").trim();
+
+                    return (
+                      <div key={lineIndex} className="mb-4 ml-4">
+                        <h3 className="text-lg font-semibold text-slate-200 mb-2 flex items-center">
+                          <div className="w-2 h-2 bg-purple-400 rounded-full mr-2"></div>
+                          {heading.trim()}
+                        </h3>
+                        {content && (
+                          <p className="text-slate-300 ml-6 leading-relaxed bg-slate-800/30 p-3 rounded-lg">
+                            {content}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  // Check if it's a numbered or bulleted item
+                  const numberedMatch = trimmedLine.match(/^(\d+)\.?\s*(.+)/);
+                  const bulletMatch = trimmedLine.match(/^[-•·]\s*(.+)/);
+
+                  if (numberedMatch) {
+                    return (
+                      <div key={lineIndex} className="mb-3 ml-8">
+                        <div className="flex items-start space-x-3">
+                          <div className="w-6 h-6 bg-gradient-to-br from-green-500 to-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold mt-0.5 flex-shrink-0">
+                            {numberedMatch[1]}
+                          </div>
+                          <p className="text-slate-300 leading-relaxed flex-1 bg-slate-800/20 p-2 rounded">
+                            {numberedMatch[2]}
+                          </p>
                         </div>
-                        <p className="text-slate-300 leading-relaxed flex-1 bg-slate-800/20 p-2 rounded">
-                          {numberedMatch[2]}
-                        </p>
                       </div>
-                    </div>
-                  );
-                }
-                
-                if (bulletMatch) {
+                    );
+                  }
+
+                  if (bulletMatch) {
+                    return (
+                      <div key={lineIndex} className="mb-2 ml-8">
+                        <div className="flex items-start space-x-3">
+                          <div className="w-2 h-2 bg-slate-400 rounded-full mt-2 flex-shrink-0"></div>
+                          <p className="text-slate-300 leading-relaxed bg-slate-800/20 p-2 rounded">
+                            {bulletMatch[1]}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Regular content
                   return (
-                    <div key={lineIndex} className="mb-2 ml-8">
-                      <div className="flex items-start space-x-3">
-                        <div className="w-2 h-2 bg-slate-400 rounded-full mt-2 flex-shrink-0"></div>
-                        <p className="text-slate-300 leading-relaxed bg-slate-800/20 p-2 rounded">
-                          {bulletMatch[1]}
-                        </p>
-                      </div>
-                    </div>
+                    <p
+                      key={lineIndex}
+                      className="text-slate-300 leading-relaxed ml-6 mb-2 bg-slate-800/20 p-2 rounded"
+                    >
+                      {trimmedLine}
+                    </p>
                   );
-                }
-                
-                // Regular content
-                return (
-                  <p key={lineIndex} className="text-slate-300 leading-relaxed ml-6 mb-2 bg-slate-800/20 p-2 rounded">
-                    {trimmedLine}
-                  </p>
-                );
-              })}
+                })}
+              </div>
             </div>
+          );
+        }
+
+        // Handle standalone content blocks
+        return (
+          <div
+            key={index}
+            className="mb-6 bg-slate-800/30 p-4 rounded-lg border border-slate-700"
+          >
+            {lines.map((line, lineIndex) => {
+              const trimmedLine = line.trim();
+              if (!trimmedLine) return null;
+
+              // Check for sub-headings
+              const isSubHeading =
+                trimmedLine.includes(":") && trimmedLine.length < 100;
+
+              if (isSubHeading) {
+                const [heading, ...contentParts] = trimmedLine.split(":");
+                const content = contentParts.join(":").trim();
+
+                return (
+                  <div key={lineIndex} className="mb-3">
+                    <h4 className="text-base font-medium text-yellow-400 mb-1 flex items-center">
+                      <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mr-2"></div>
+                      {heading.trim()}
+                    </h4>
+                    {content && (
+                      <p className="text-slate-300 ml-4 leading-relaxed">
+                        {content}
+                      </p>
+                    )}
+                  </div>
+                );
+              }
+
+              return (
+                <p
+                  key={lineIndex}
+                  className="text-slate-300 leading-relaxed mb-2"
+                >
+                  {trimmedLine}
+                </p>
+              );
+            })}
           </div>
         );
-      }
-      
-      // Handle standalone content blocks
-      return (
-        <div key={index} className="mb-6 bg-slate-800/30 p-4 rounded-lg border border-slate-700">
-          {lines.map((line, lineIndex) => {
-            const trimmedLine = line.trim();
-            if (!trimmedLine) return null;
-            
-            // Check for sub-headings
-            const isSubHeading = trimmedLine.includes(':') && trimmedLine.length < 100;
-            
-            if (isSubHeading) {
-              const [heading, ...contentParts] = trimmedLine.split(':');
-              const content = contentParts.join(':').trim();
-              
-              return (
-                <div key={lineIndex} className="mb-3">
-                  <h4 className="text-base font-medium text-yellow-400 mb-1 flex items-center">
-                    <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mr-2"></div>
-                    {heading.trim()}
-                  </h4>
-                  {content && (
-                    <p className="text-slate-300 ml-4 leading-relaxed">
-                      {content}
-                    </p>
-                  )}
-                </div>
-              );
-            }
-            
-            return (
-              <p key={lineIndex} className="text-slate-300 leading-relaxed mb-2">
-                {trimmedLine}
-              </p>
-            );
-          })}
-        </div>
-      );
-    }).filter(Boolean);
+      })
+      .filter(Boolean);
   };
 
   // Get button text and styling based on server status
@@ -267,7 +303,8 @@ function Form({ serverStatus, onRefreshStatus }) {
         text: "Analyzing...",
         icon: <Loader2 className="w-5 h-5 animate-spin" />,
         disabled: true,
-        className: "w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl font-semibold text-lg opacity-50 cursor-not-allowed flex items-center justify-center space-x-2"
+        className:
+          "w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl font-semibold text-lg opacity-50 cursor-not-allowed flex items-center justify-center space-x-2",
       };
     }
 
@@ -276,7 +313,8 @@ function Form({ serverStatus, onRefreshStatus }) {
         text: "Server Offline",
         icon: <WifiOff className="w-5 h-5" />,
         disabled: true,
-        className: "w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-4 rounded-xl font-semibold text-lg opacity-50 cursor-not-allowed flex items-center justify-center space-x-2"
+        className:
+          "w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-4 rounded-xl font-semibold text-lg opacity-50 cursor-not-allowed flex items-center justify-center space-x-2",
       };
     }
 
@@ -285,7 +323,8 @@ function Form({ serverStatus, onRefreshStatus }) {
         text: "Server Waking Up...",
         icon: <Wifi className="w-5 h-5 animate-pulse" />,
         disabled: true,
-        className: "w-full bg-gradient-to-r from-yellow-600 to-orange-600 text-white py-4 rounded-xl font-semibold text-lg opacity-50 cursor-not-allowed flex items-center justify-center space-x-2"
+        className:
+          "w-full bg-gradient-to-r from-yellow-600 to-orange-600 text-white py-4 rounded-xl font-semibold text-lg opacity-50 cursor-not-allowed flex items-center justify-center space-x-2",
       };
     }
 
@@ -293,7 +332,8 @@ function Form({ serverStatus, onRefreshStatus }) {
       text: "Analyze Resume",
       icon: <Zap className="w-5 h-5" />,
       disabled: false,
-      className: "w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center space-x-2"
+      className:
+        "w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center space-x-2",
     };
   };
 
@@ -322,7 +362,7 @@ function Form({ serverStatus, onRefreshStatus }) {
             <label className="block text-slate-300 font-medium text-lg">
               Upload Resume (PDF)
             </label>
-            
+
             <div
               className={`relative border-2 border-dashed rounded-xl p-8 transition-all duration-300 ${
                 dragActive
@@ -341,12 +381,19 @@ function Form({ serverStatus, onRefreshStatus }) {
                   <>
                     <CheckCircle className="w-12 h-12 text-green-400 animate-bounce" />
                     <div className="text-center">
-                      <p className="text-green-400 font-medium text-lg">{resume.name}</p>
-                      <div className="flex items-center justify-center space-x-2 mt-2">
-                      <p className="text-slate-400 text-sm">File uploaded successfully</p>
-                      <button onClick={handleCancel} className="hover:hover:bg-white/20 rounded-md p-1 z-10 transition-colors duration-200">
-                        <X className="w-5 h-5 text-slate-400" />
-                      </button>
+                      <p className="text-green-400 font-medium text-lg">
+                        {resume.name}
+                      </p>
+                      <div className="flex items-center justify-center gap-2 mt-2">
+                        <p className="text-slate-400 h-5 text-sm">
+                          File uploaded successfully
+                        </p>
+                        <button
+                          onClick={handleCancel}
+                          className="hover:bg-white/20 rounded-md p-1 border-none z-10 transition-colors duration-200"
+                        >
+                          <X className="w-5 h-5 text-slate-400" />
+                        </button>
                       </div>
                     </div>
                   </>
@@ -421,8 +468,12 @@ function Form({ serverStatus, onRefreshStatus }) {
                   <AlertCircle className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-blue-400">AI Feedback</h2>
-                  <p className="text-slate-400 text-sm">Resume analysis results</p>
+                  <h2 className="text-xl font-semibold text-blue-400">
+                    AI Feedback
+                  </h2>
+                  <p className="text-slate-400 text-sm">
+                    Resume analysis results
+                  </p>
                 </div>
               </div>
               <button
@@ -436,7 +487,7 @@ function Form({ serverStatus, onRefreshStatus }) {
                   <Copy className="w-4 h-4 text-slate-400 group-hover:text-white" />
                 )}
                 <span className="text-sm text-slate-400 group-hover:text-white">
-                  {copied ? 'Copied!' : 'Copy'}
+                  {copied ? "Copied!" : "Copy"}
                 </span>
               </button>
             </div>
