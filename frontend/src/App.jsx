@@ -36,8 +36,6 @@ function App() {
       // If it's a timeout or network error, server might be waking up
       if (error.name === 'TimeoutError' || error.name === 'TypeError') {
         setServerStatus('waking');
-        // Retry after a delay
-        setTimeout(checkServerStatus, 5000);
       } else {
         setServerStatus('offline');
       }

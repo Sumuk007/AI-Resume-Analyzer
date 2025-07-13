@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import axios from "axios";
-import { Upload, FileText, Zap, CheckCircle, AlertCircle, Loader2, Copy, Check, RefreshCw, Wifi, WifiOff } from "lucide-react";
+import { Upload, X, FileText, Zap, CheckCircle, AlertCircle, Loader2, Copy, Check, RefreshCw, Wifi, WifiOff } from "lucide-react";
 
 function Form({ serverStatus, onRefreshStatus }) {
   const [resume, setResume] = useState(null);
@@ -70,6 +70,14 @@ function Form({ serverStatus, onRefreshStatus }) {
       setLoading(false);
     }
   };
+
+  const fileInputRef = useRef();
+  const handleCancel = () => {
+    setResume(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = null;
+  }
+  }
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -334,7 +342,12 @@ function Form({ serverStatus, onRefreshStatus }) {
                     <CheckCircle className="w-12 h-12 text-green-400 animate-bounce" />
                     <div className="text-center">
                       <p className="text-green-400 font-medium text-lg">{resume.name}</p>
+                      <div className="flex items-center justify-center space-x-2 mt-2">
                       <p className="text-slate-400 text-sm">File uploaded successfully</p>
+                      <button onClick={handleCancel} className="hover:hover:bg-white/20 rounded-md p-1 z-10 transition-colors duration-200">
+                        <X className="w-5 h-5 text-slate-400" />
+                      </button>
+                      </div>
                     </div>
                   </>
                 ) : (
@@ -353,8 +366,10 @@ function Form({ serverStatus, onRefreshStatus }) {
               <input
                 id="file-upload"
                 type="file"
+                ref={fileInputRef}
                 accept="application/pdf"
                 onChange={(e) => setResume(e.target.files[0])}
+                required={true}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 disabled={!isServerAvailable && !isServerWaking}
               />
@@ -370,6 +385,7 @@ function Form({ serverStatus, onRefreshStatus }) {
               <textarea
                 value={jobDesc}
                 onChange={(e) => setJobDesc(e.target.value)}
+                required={true}
                 rows={6}
                 placeholder="Enter the job description here..."
                 className="w-full px-4 py-4 bg-slate-700/50 border border-slate-600 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none disabled:opacity-50"
