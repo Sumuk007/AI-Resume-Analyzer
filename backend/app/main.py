@@ -8,6 +8,7 @@ app = FastAPI()
 
 origins = [
     "https://ai-resume-analyzer-delta.vercel.app",
+    "http://localhost:5173"
     ]
 
 # Allow frontend access (adjust as needed)
@@ -23,6 +24,10 @@ app.add_middleware(
 @app.get("/")
 async def root():
     return {"message": "Welcome to the AI Resume Analyzer!"}
+
+@app.get("/health")
+async def health_check():
+    return JSONResponse(content={"status": "ok"}, status_code=200)
 
 @app.post("/analyze/")
 async def analyze_resume_endpoint(
